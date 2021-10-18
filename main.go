@@ -54,13 +54,12 @@ func (h *myAuthHandler) OnPassword(
 	ConnectionID string,
 ) (bool, error) {
 	h.logger.Info("Login attempt with username:", Username, "Connection ID:", ConnectionID)
-	//return false, nil
 
 	client, err := smtp.Dial(h.smtpEp)
-	defer client.Close()
 	if err != nil {
 		return false, err
 	}
+	defer client.Close()
 	err = client.StartTLS(&tls.Config{ServerName: h.smtpServerName})
 	if err != nil {
 		return false, err
@@ -93,6 +92,7 @@ type myConfigReqHandler struct {
 func (m *myConfigReqHandler) OnConfig(
 	request configuration.ConfigRequest,
 ) (config configuration.AppConfig, err error) {
+	m.logger.Info("Config request for: ", request.Username, "Session ID:", request.SessionID)
 	if config.Docker.Execution.Launch.ContainerConfig == nil {
 		config.Docker.Execution.Launch.ContainerConfig = &container.Config{}
 	}
