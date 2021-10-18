@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/containerssh/auth"
-	"github.com/containerssh/configuration"
+	"github.com/containerssh/configuration/v2"
 	"github.com/docker/docker/api/types/container"
 
 	"github.com/containerssh/log"
