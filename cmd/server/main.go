@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -34,14 +33,14 @@ func main() {
 	if userVolumeMappingPath == "" {
 		panic("USER_VOLUME_MAPPING_PATH not defined")
 	}
-	mappingRawContent, err := ioutil.ReadFile(userVolumeMappingPath)
+	mapping := config.NewMappingFileHandler(logger)
+	err = mapping.Load(userVolumeMappingPath)
 	if err != nil {
-		panic("Mapping file read error: " + err.Error())
+		panic(err.Error())
 	}
-	logger.Info(mappingRawContent)
 
-	authHandler := auth.NewSmtpAuthHandler(logger, smtpEP, smtpServerName)
-	configHandler, err := config.NewConfigReqHandler(logger)
+	authHandler := auth.NewSmtpAuthHandler(logger, smtpEP, smtpServerName, mapping)
+	configHandler, err := config.NewConfigReqHandler(logger, mapping)
 	if err != nil {
 		panic(err.Error())
 	}
