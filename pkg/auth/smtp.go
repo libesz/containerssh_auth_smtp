@@ -8,6 +8,7 @@ import (
 
 	"github.com/containerssh/auth"
 	"github.com/containerssh/log"
+	"github.com/libesz/containerssh_smtp_auth/pkg/config"
 )
 
 type loginAuth struct {
@@ -36,7 +37,7 @@ func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	return nil, nil
 }
 
-func NewSmtpAuthHandler(logger log.Logger, smtpEp string, smtpServerName string) http.Handler {
+func NewSmtpAuthHandler(logger log.Logger, smtpEp string, smtpServerName string, mapping config.MappingFileHandler) http.Handler {
 	return auth.NewHandler(smtpAuthHandler{
 		logger:         logger,
 		smtpEp:         smtpEp,
@@ -48,6 +49,7 @@ type smtpAuthHandler struct {
 	logger         log.Logger
 	smtpEp         string
 	smtpServerName string
+	mapping        config.MappingFileHandler
 }
 
 func (h smtpAuthHandler) OnPassword(
@@ -57,6 +59,11 @@ func (h smtpAuthHandler) OnPassword(
 	ConnectionID string,
 ) (bool, error) {
 	h.logger.Info("Login attempt with username:", Username, "Connection ID:", ConnectionID)
+
+	if !h.mapping.UserExist(Username) {
+		h.logger.Info("Login does not exist in mapping file:", Username, "Connection ID:", ConnectionID)
+		return false, nil
+	}
 
 	client, err := smtp.Dial(h.smtpEp)
 	if err != nil {
