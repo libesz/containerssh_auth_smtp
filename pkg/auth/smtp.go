@@ -42,6 +42,7 @@ func NewSmtpAuthHandler(logger log.Logger, smtpEp string, smtpServerName string,
 		logger:         logger,
 		smtpEp:         smtpEp,
 		smtpServerName: smtpServerName,
+		mapping:        mapping,
 	}, logger)
 }
 
