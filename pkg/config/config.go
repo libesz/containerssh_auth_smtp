@@ -6,6 +6,11 @@ import (
 	"github.com/containerssh/configuration/v2"
 	"github.com/containerssh/log"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
+)
+
+const (
+	contentMountPoint = "/content"
 )
 
 func NewConfigReqHandler(logger log.Logger, mapping MappingFileHandler) (http.Handler, error) {
@@ -25,15 +30,24 @@ func (c configReqHandler) OnConfig(
 		config.Docker.Execution.Launch.ContainerConfig = &container.Config{}
 	}
 
-	config.Docker.Execution.Launch.ContainerConfig.WorkingDir = "/content"
+	config.Docker.Execution.Launch.ContainerConfig.WorkingDir = contentMountPoint
 
 	volumeName, err := c.mapping.GetUserVolumeName(request.Username)
 	if err != nil {
 		return config, err
 	}
-	if config.Docker.Execution.Launch.ContainerConfig.Volumes == nil {
-		config.Docker.Execution.Launch.ContainerConfig.Volumes = map[string]struct{}{}
+
+	if config.Docker.Execution.Launch.HostConfig == nil {
+		config.Docker.Execution.Launch.HostConfig = &container.HostConfig{}
 	}
-	config.Docker.Execution.Launch.ContainerConfig.Volumes[volumeName+":/content"] = struct{}{}
+	if config.Docker.Execution.Launch.HostConfig.Mounts == nil {
+		config.Docker.Execution.Launch.HostConfig.Mounts = []mount.Mount{}
+	}
+	config.Docker.Execution.Launch.HostConfig.Mounts = append(config.Docker.Execution.Launch.HostConfig.Mounts, mount.Mount{
+		Type:          "volume",
+		Source:        volumeName,
+		Target:        contentMountPoint,
+		VolumeOptions: &mount.VolumeOptions{},
+	})
 	return config, err
 }
