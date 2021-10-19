@@ -2,6 +2,8 @@ package config
 
 import (
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"crypto/rand"
 	"unsafe"
@@ -46,12 +48,13 @@ func (c configReqHandler) OnConfig(
 		config.Docker.Execution.Launch.ContainerConfig = &container.Config{}
 	}
 
-	volumeName, err := c.mapping.GetUserVolumeName(request.Username)
+	volumeNames, err := c.mapping.GetUserVolumeNames(request.Username)
 	if err != nil {
 		return config, err
 	}
+	volumeNamePrefix := c.mapping.GetVolumePrefix()
 
-	config.Docker.Execution.Launch.ContainerName = containerNamePrefix + "-" + volumeName + "-" + generate(containerNameRandomTailSize)
+	config.Docker.Execution.Launch.ContainerName = containerNamePrefix + "-" + strings.Replace(request.Username, "@", "-", -1) + "-" + generate(containerNameRandomTailSize)
 
 	config.Docker.Execution.Launch.ContainerConfig.WorkingDir = contentMountPoint
 
@@ -61,12 +64,15 @@ func (c configReqHandler) OnConfig(
 	if config.Docker.Execution.Launch.HostConfig.Mounts == nil {
 		config.Docker.Execution.Launch.HostConfig.Mounts = []mount.Mount{}
 	}
-	config.Docker.Execution.Launch.HostConfig.Mounts = append(config.Docker.Execution.Launch.HostConfig.Mounts, mount.Mount{
-		Type:          "volume",
-		Source:        volumeName,
-		Target:        contentMountPoint,
-		VolumeOptions: &mount.VolumeOptions{},
-	})
+	for _, volumeName := range volumeNames {
+		volumeNameWithoutPrefix := strings.Replace(volumeName, volumeNamePrefix, "", 1)
+		config.Docker.Execution.Launch.HostConfig.Mounts = append(config.Docker.Execution.Launch.HostConfig.Mounts, mount.Mount{
+			Type:          "volume",
+			Source:        volumeName,
+			Target:        filepath.Join(contentMountPoint, volumeNameWithoutPrefix),
+			VolumeOptions: &mount.VolumeOptions{},
+		})
+	}
 
 	return config, err
 }

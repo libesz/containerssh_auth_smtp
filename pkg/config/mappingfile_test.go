@@ -7,12 +7,17 @@ import (
 )
 
 func TestUserExist(t *testing.T) {
-	file := MappingFile{VolumePrefix: "sites-", VolumePostfix: "-1", Users: []UserSpecs{
-		{
-			UserName:   "bela",
-			VolumeName: "bela-com",
+	file := MappingFile{
+		VolumePrefix: "sites_",
+		Volumes: []VolumeSpecs{
+			{
+				VolumeName: "bela-com",
+				Users: []string{
+					"bela",
+				},
+			},
 		},
-	}}
+	}
 	handler := mappingFileHandler{log.NewTestLogger(t), file}
 	//handler.Dump()
 	if !handler.UserExist("bela") {
@@ -24,18 +29,26 @@ func TestUserExist(t *testing.T) {
 }
 
 func TestGetVolumeName(t *testing.T) {
-	file := MappingFile{VolumePrefix: "sites-", VolumePostfix: "-1", Users: []UserSpecs{
-		{
-			UserName:   "bela",
-			VolumeName: "bela-com",
+	file := MappingFile{
+		VolumePrefix: "sites_",
+		Volumes: []VolumeSpecs{
+			{
+				VolumeName: "bela-com",
+				Users: []string{
+					"bela",
+				},
+			},
 		},
-	}}
+	}
 	handler := mappingFileHandler{log.NewTestLogger(t), file}
-	volumeName, err := handler.GetUserVolumeName("bela")
+	volumeNames, err := handler.GetUserVolumeNames("bela")
 	if err != nil {
 		t.Fatal("User volume shall not error: bela")
 	}
-	if volumeName != "sites-bela-com-1" {
+	if len(volumeNames) != 1 {
+		t.Fatal("Volume list length must be 1")
+	}
+	if volumeNames[0] != "sites_bela-com" {
 		t.Fatal("Volume name must be: sites-bela-com-1")
 	}
 }

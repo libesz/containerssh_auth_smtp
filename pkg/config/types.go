@@ -1,14 +1,13 @@
 package config
 
-type UserSpecs struct {
-	UserName   string `yaml:"username"`
-	VolumeName string `yaml:"volumename"`
+type VolumeSpecs struct {
+	VolumeName string   `yaml:volumename`
+	Users      []string `yaml:users`
 }
 
 type MappingFile struct {
-	VolumePrefix  string      `yaml:"volumeprefix"`
-	VolumePostfix string      `yaml:"volumepostfix"`
-	Users         []UserSpecs `yaml:"users"`
+	VolumePrefix string        `yaml:"volumeprefix"`
+	Volumes      []VolumeSpecs `yaml: "volumes"`
 }
 
 type MappingFileHandler interface {
@@ -18,5 +17,6 @@ type MappingFileHandler interface {
 	Load(path string) error
 	Set(content MappingFile)
 	UserExist(userName string) bool
-	GetUserVolumeName(userName string) (string, error)
+	GetUserVolumeNames(userName string) ([]string, error)
+	GetVolumePrefix() string
 }

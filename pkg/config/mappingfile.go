@@ -54,19 +54,31 @@ func (file *mappingFileHandler) Set(content MappingFile) {
 }
 
 func (file *mappingFileHandler) UserExist(userName string) bool {
-	for _, user := range file.content.Users {
-		if user.UserName == userName {
-			return true
+	for _, volume := range file.content.Volumes {
+		for _, user := range volume.Users {
+			if user == userName {
+				return true
+			}
 		}
 	}
 	return false
 }
 
-func (file *mappingFileHandler) GetUserVolumeName(userName string) (string, error) {
-	for _, user := range file.content.Users {
-		if user.UserName == userName {
-			return file.content.VolumePrefix + user.VolumeName + file.content.VolumePostfix, nil
+func (file *mappingFileHandler) GetUserVolumeNames(userName string) ([]string, error) {
+	volumes := []string{}
+	for _, volume := range file.content.Volumes {
+		for _, user := range volume.Users {
+			if user == userName {
+				volumes = append(volumes, file.content.VolumePrefix+volume.VolumeName)
+			}
 		}
 	}
-	return "", fmt.Errorf("user not found")
+	if len(volumes) == 0 {
+		return volumes, fmt.Errorf("User not found")
+	}
+	return volumes, nil
+}
+
+func (file *mappingFileHandler) GetVolumePrefix() string {
+	return file.content.VolumePrefix
 }
