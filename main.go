@@ -5,29 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/containerssh/configuration/v2"
-	"github.com/docker/docker/api/types/container"
 	"github.com/libesz/containerssh_smtp_auth/pkg/auth"
+	"github.com/libesz/containerssh_smtp_auth/pkg/config"
 
 	"github.com/containerssh/log"
 )
-
-type myConfigReqHandler struct {
-	logger log.Logger
-}
-
-func (m *myConfigReqHandler) OnConfig(
-	request configuration.ConfigRequest,
-) (config configuration.AppConfig, err error) {
-	m.logger.Info("Config request for: ", request.Username, "Session ID:", request.SessionID)
-	if config.Docker.Execution.Launch.ContainerConfig == nil {
-		config.Docker.Execution.Launch.ContainerConfig = &container.Config{}
-	}
-
-	config.Docker.Execution.Launch.ContainerConfig.WorkingDir = "/root"
-
-	return config, err
-}
 
 func main() {
 	logger, err := log.NewLogger(log.Config{Format: log.FormatText, Destination: log.DestinationStdout, Level: log.LevelDebug})
@@ -59,7 +41,7 @@ func main() {
 	logger.Info(mappingRawContent)
 
 	authHandler := auth.NewSmtpAuthHandler(logger, smtpEP, smtpServerName)
-	configHandler, err := configuration.NewHandler(&myConfigReqHandler{logger}, logger)
+	configHandler, err := config.NewConfigReqHandler(logger)
 	if err != nil {
 		panic(err.Error())
 	}
