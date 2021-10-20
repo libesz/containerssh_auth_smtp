@@ -1,4 +1,4 @@
-# containerssh_smtp_auth
+# ContainerSSH SMTP authenticator (unofficial)
 This project is an auth + config webhook server implementation for [ContainerSSH](https://containerssh.io/) with the following capabilities:
 * The authentication is proxied to an SMTP server, which will provide the real authentication. STARTTLS is expected.
 * The configuration server part is configured with a static yaml file, which provides docker volume to user mappings.
@@ -12,15 +12,10 @@ Do not expose this to the public internet.
 ## Use case
 Assuming you run a webhosting + email service, you most probably provide SMTP authentication for the users to restrict email sending. This project helps to not implement another authentication service (and database, and a second password to keep in mind by the user, etc) for reaching the webhosting content. Users are able to use SFTP to reach their content with their email credentials.
 
-## Build:
-```
-docker build -t huszty/containerssh_auth_smtp .
-```
-
 ## Usage:
 With plain docker run command:
 ```
-docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_temp_auth
+docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_auth_smtp:v0.1.1
 ```
 
 With docker-compose, together with the SSH server container:
@@ -30,7 +25,7 @@ services:
   containerssh:
   [...]
   authconfig:
-    image: huszty/containerssh_auth_smtp:v0.1.0
+    image: huszty/containerssh_auth_smtp:v0.1.1
     environment:
       LISTEN_ON: "0.0.0.0:8090"
       SMTP_EP: "<SMTP_SERVER_IP_OR_HOSTNAME>:587"
@@ -75,6 +70,11 @@ security:
   subsystem:
     allow:
       - sftp
+```
+
+## Build:
+```
+docker build -t huszty/containerssh_auth_smtp .
 ```
 
 ## TODO

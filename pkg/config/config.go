@@ -54,7 +54,7 @@ func (c configReqHandler) OnConfig(
 	}
 	volumeNamePrefix := c.mapping.GetVolumePrefix()
 
-	config.Docker.Execution.Launch.ContainerName = containerNamePrefix + "-" + strings.Replace(request.Username, "@", "-", -1) + "-" + generate(containerNameRandomTailSize)
+	config.Docker.Execution.Launch.ContainerName = containerNamePrefix + "-" + strings.Replace(strings.Replace(request.Username, "@", "-", -1), ".", "-", -1) + "-" + generate(containerNameRandomTailSize)
 
 	config.Docker.Execution.Launch.ContainerConfig.WorkingDir = contentMountPoint
 
