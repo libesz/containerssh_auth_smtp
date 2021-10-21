@@ -15,7 +15,7 @@ Assuming you run a webhosting + email service, you most probably provide SMTP au
 ## Usage:
 With plain docker run command:
 ```
-docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_auth_smtp:v0.1.2
+docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_auth_smtp:v0.2.0
 ```
 
 With docker-compose, together with the SSH server container:
@@ -25,7 +25,7 @@ services:
   containerssh:
   [...]
   authconfig:
-    image: huszty/containerssh_auth_smtp:v0.1.2
+    image: huszty/containerssh_auth_smtp:v0.2.0
     environment:
       LISTEN_ON: "0.0.0.0:8090"
       SMTP_EP: "<SMTP_SERVER_IP_OR_HOSTNAME>:587"
@@ -72,6 +72,9 @@ security:
       - sftp
 ```
 
+## Auth-only mode
+If you do not specify the mappind file (with env var USER_VOLUME_MAPPING_PATH), the server starts up without the config server handler. Authentication server will purely SMTP authenticate the user without further checks. In this case you have to provide some other config server for ContainerSSH. 
+
 ## Build:
 ```
 docker build -t huszty/containerssh_auth_smtp .
@@ -80,10 +83,8 @@ docker build -t huszty/containerssh_auth_smtp .
 ## TODO
 Planned:
  * Implement hot-reload for the mapping file change (now you have to restart the container to catch up)
- * Refactor env var handling
  * Add TLS to have HTTPS
  * Add more unit test
- * Add an auth-only setting, so that volume to mapping is not needed/used (plain SMTP authentication without anything else)
 
 Outside of my use-case, but still interested in:
  * Add other backends, like Kubernetes

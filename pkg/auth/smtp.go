@@ -61,7 +61,7 @@ func (h smtpAuthHandler) OnPassword(
 ) (bool, error) {
 	h.logger.Info("Login attempt with username:", Username, "Connection ID:", ConnectionID)
 
-	if !h.mapping.UserExist(Username) {
+	if h.mapping != nil && !h.mapping.UserExist(Username) {
 		h.logger.Info("Login does not exist in mapping file:", Username, "Connection ID:", ConnectionID)
 		return false, nil
 	}
