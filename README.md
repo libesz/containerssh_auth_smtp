@@ -73,7 +73,7 @@ security:
 ```
 
 ## Auth-only mode
-If you do not specify the mappind file (with env var USER_VOLUME_MAPPING_PATH), the server starts up without the config server handler. Authentication server will purely SMTP authenticate the user without further checks. In this case you have to provide some other config server for ContainerSSH. 
+If you do not specify the mapping file (with env var USER_VOLUME_MAPPING_PATH), the server starts up without the config server handler. Authentication server will purely SMTP authenticate the user without further checks. In this case you have to provide some other config server for ContainerSSH. 
 
 ## Build:
 ```
