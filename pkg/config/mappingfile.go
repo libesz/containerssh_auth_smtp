@@ -10,17 +10,25 @@ import (
 )
 
 type mappingFileHandler struct {
-	logger  log.Logger
-	content MappingFile
+	logger       log.Logger
+	contentToken chan struct{}
+	content      MappingFile
 }
 
+type token struct{}
+
 func NewMappingFileHandler(logger log.Logger) *mappingFileHandler {
+	contentToken := make(chan struct{}, 1)
+	contentToken <- token{}
 	return &mappingFileHandler{
-		logger: logger,
+		logger:       logger,
+		contentToken: contentToken,
 	}
 }
 
 func (file *mappingFileHandler) Render() []byte {
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	d, err := yaml.Marshal(&file.content)
 	if err != nil {
 		file.logger.Error("error: %v", err)
@@ -45,15 +53,21 @@ func (file *mappingFileHandler) Load(path string) error {
 	}
 	content := MappingFile{}
 	err = yaml.Unmarshal(rawContent, &content)
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	file.content = content
 	return err
 }
 
 func (file *mappingFileHandler) Set(content MappingFile) {
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	file.content = content
 }
 
 func (file *mappingFileHandler) UserExist(userName string) bool {
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	for _, volume := range file.content.Volumes {
 		for _, user := range volume.Users {
 			if user == userName {
@@ -65,6 +79,8 @@ func (file *mappingFileHandler) UserExist(userName string) bool {
 }
 
 func (file *mappingFileHandler) GetUserVolumeNames(userName string) ([]string, error) {
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	volumes := []string{}
 	for _, volume := range file.content.Volumes {
 		for _, user := range volume.Users {
@@ -74,11 +90,13 @@ func (file *mappingFileHandler) GetUserVolumeNames(userName string) ([]string, e
 		}
 	}
 	if len(volumes) == 0 {
-		return volumes, fmt.Errorf("User not found")
+		return volumes, fmt.Errorf("user not found")
 	}
 	return volumes, nil
 }
 
 func (file *mappingFileHandler) GetVolumePrefix() string {
+	token := <-file.contentToken
+	defer func() { file.contentToken <- token }()
 	return file.content.VolumePrefix
 }

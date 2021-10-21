@@ -18,7 +18,8 @@ func TestUserExist(t *testing.T) {
 			},
 		},
 	}
-	handler := mappingFileHandler{log.NewTestLogger(t), file}
+	handler := NewMappingFileHandler(log.NewTestLogger(t))
+	handler.Set(file)
 	//handler.Dump()
 	if !handler.UserExist("bela") {
 		t.Fatal("User shall exist: bela")
@@ -40,7 +41,8 @@ func TestGetVolumeName(t *testing.T) {
 			},
 		},
 	}
-	handler := mappingFileHandler{log.NewTestLogger(t), file}
+	handler := NewMappingFileHandler(log.NewTestLogger(t))
+	handler.Set(file)
 	volumeNames, err := handler.GetUserVolumeNames("bela")
 	if err != nil {
 		t.Fatal("User volume shall not error: bela")
