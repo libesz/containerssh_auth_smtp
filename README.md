@@ -15,7 +15,7 @@ Assuming you run a webhosting + email service, you most probably provide SMTP au
 ## Usage:
 With plain docker run command:
 ```
-docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_auth_smtp:v0.1.1
+docker run -e LISTEN_ON=0.0.0.0:8090 -e SMTP_EP=<SMTP_SERVER_IP_OR_HOSTNAME>:587 -e SMTP_SERVER_NAME=<SMTP_SERVER_NAME_THAT_MATCHES_ITS_TLS_CERT> -e USER_VOLUME_MAPPING_PATH:=/mapping.yaml -v <MAPPING_FILE_PATH>:/mapping.yaml -p 8090:8090 huszty/containerssh_auth_smtp:v0.1.2
 ```
 
 With docker-compose, together with the SSH server container:
@@ -25,7 +25,7 @@ services:
   containerssh:
   [...]
   authconfig:
-    image: huszty/containerssh_auth_smtp:v0.1.1
+    image: huszty/containerssh_auth_smtp:v0.1.2
     environment:
       LISTEN_ON: "0.0.0.0:8090"
       SMTP_EP: "<SMTP_SERVER_IP_OR_HOSTNAME>:587"
